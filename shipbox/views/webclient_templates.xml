@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="assets_backend" name="ShipBox Assets and Fields" inherit_id="web.assets_backend" priority='15'>
+        <xpath expr="//script[last()]" position="after">
+            <script type="text/javascript" src="/shipbox/static/src/js/views/core.js"></script>
+            <script type="text/javascript" src="/shipbox/static/src/js/views/widgets.js"></script>
+        </xpath>
+    </template>
+</odoo>
