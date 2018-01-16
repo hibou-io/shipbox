@@ -8,9 +8,9 @@ from tempfile import NamedTemporaryFile
 from threading import Thread, Lock
 from base64 import b64decode
 
-from odoo import http
+from openerp import http
 
-import odoo.addons.hw_proxy.controllers.main as hw_proxy
+import openerp.addons.hw_proxy.controllers.main as hw_proxy
 
 _logger = logging.getLogger(__name__)
 

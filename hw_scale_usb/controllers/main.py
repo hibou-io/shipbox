@@ -6,10 +6,10 @@ import time
 from pyusb_scale.scale import Scale
 from threading import Thread, Lock
 
-from odoo import http
+from openerp import http
 
-import odoo.addons.hw_proxy.controllers.main as hw_proxy
-import odoo.addons.hw_scale.controllers.main as hw_scale
+import openerp.addons.hw_proxy.controllers.main as hw_proxy
+import openerp.addons.hw_scale.controllers.main as hw_scale
 
 _logger = logging.getLogger(__name__)
 
