@@ -3,8 +3,8 @@
 import subprocess
 import logging
 
-from odoo import http
-from odoo.addons.hw_screen.controllers import main as homepage
+from openerp import http
+from openerp.addons.hw_screen.controllers import main as homepage
 
 _logger = logging.getLogger(__name__)
 
