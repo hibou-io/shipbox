@@ -1,41 +1,23 @@
-odoo.define('shipbox.core', function (require) {
+odoo.define('shipbox.print_queue', function (require) {
 "use strict";
 
 var ajax = require('web.ajax');
-var core = require('web.core');
-var Model = require('web.DataModel');
 var ActionManager = require('web.ActionManager');
 
 ActionManager.include({
     ir_actions_act_window_close: function (action, options) {
-        console.log('Hello actions close!');
         if (action.shipbox_print) {
+            console.log(action.shipbox_print);
+            console.log(PrintQueueContainer.getMainQueue());
             if (action.shipbox_print.endpoint_url) {
-                if (!printer_runner_container[action.shipbox_print.endpoint_url]) {
-                    var new_runner = new PrinterRunner();
-                    new_runner.endpoint_url = action.shipbox_print.endpoint_url;
-                    new_runner.start();
-                    printer_runner_container[action.shipbox_print.endpoint_url] = new_runner;
-                }
-                printer_runner_container[action.shipbox_print.endpoint_url].print(action.shipbox_print);
-            } else {
-                label_printer_runner.print(action.shipbox_print);
+                PrintQueueContainer.getQueue(action.shipbox_print.endpoint_url).print(action.shipbox_print)
+            } else if (PrintQueueContainer.getMainQueue()) {
+                PrintQueueContainer.getMainQueue().print(action.shipbox_print);
             }
         }
         return this._super(action, options);
     }
 });
-
-var _t = core._t;
-var QWeb = core.qweb;
-
-/*
-This is the function that the Linea Pro iOS cases use to pass in
-Barcode data to a webapp.
- */
-window.BarcodeData = function(barcode, type, typeText) {
-    core.bus.trigger('barcode_scanned', barcode, document);
-};
 
 // helper
 var blobToBase64 = function(blob, callback) {
@@ -48,63 +30,37 @@ var blobToBase64 = function(blob, callback) {
     reader.readAsDataURL(blob);
 };
 
-var printer_runner_container = {}
-var endpoint_url = false;
-var endpoint_name = '';
-new Model("shipbox.endpoint").call("get_endpoint").then(function(response) {
-    endpoint_url = response.url;
-    endpoint_name = response.name;
-    label_printer_runner.endpoint_url = endpoint_url;
-    printer_runner_container[endpoint_url] = label_printer_runner;
-});
-
-var scale_runner = {
-    scale_reading: 0.0,
-    started: false,
-    timer: false,
-    connection_errors_count: 0,
-    speed: 1000,
-
-    get_scale_reading: function() {
-        if (!this.started) {
-            this.start();
+var PrintQueueContainer = {
+    queues: {},
+    main_queue: false,
+    event_callback: false,
+    setMainQueue: function(endpoint_url, callback) {
+        if (callback) {
+            this.event_callback = callback;
         }
-        return this.scale_reading;
+        var new_runner = new PrinterRunner();
+        new_runner.endpoint_url = endpoint_url;
+        new_runner.event_callback = this.event_callback;
+        new_runner.start();
+        this.queues[endpoint_url] = new_runner;
+        this.main_queue = new_runner;
     },
-    start: function() {
-        this.started = true;
-        this.read_from_scale();
+    getMainQueue: function() {
+        return this.main_queue;
     },
-    read_from_scale: function() {
-        if (endpoint_url && this.connection_errors_count < 100) {
-            var url = endpoint_url + '/hw_proxy/scale_read/';
-            ajax.jsonRpc(url)
-                .done(this.response_from_scale.bind(this))
-                .fail(this.error_from_scale.bind(this))
-                .always(this.setup_read_timer.bind(this));
+    getQueue: function(endpoint_url) {
+        if (!this.queues[endpoint_url]) {
+            var new_runner = new PrinterRunner();
+            new_runner.endpoint_url = endpoint_url;
+            new_runner.event_callback = this.event_callback;
+            new_runner.start();
+            this.queues[endpoint_url] = new_runner;
+            return new_runner;
         } else {
-            this.setup_read_timer();
+            return this.queues[endpoint_url];
         }
-    },
-    response_from_scale: function(response) {
-        var w = response.weight.toFixed(3);
-        this.scale_reading = parseFloat(w);
-        this.speed = 500;
-        $('.shipbox_scale_reading_auto').text(this.scale_reading);
-    },
-    error_from_scale: function(error) {
-        this.connection_errors_count += 1;
-        this.speed = 1000;
-        if (this.connection_errors_count > 10) {
-            this.speed = 2000;
-        } else if (this.connection_errors_count > 20) {
-            this.speed = 5000;
-        }
-    },
-    setup_read_timer: function() {
-        this.timer = setTimeout(this.read_from_scale.bind(this), this.speed);
-    },
-};
+    }
+}
 
 var PrinterRunner = function(){
     this.endpoint_url = false;
@@ -112,7 +68,8 @@ var PrinterRunner = function(){
     this._can_print_label = false;
     this._backlog = [];
     this.connection_errors_count = 0;
-    this.start_wait_count = 0;
+    this.start_wait_count = 0
+    this.event_callback = false;
 
     this.can_print_label = function () {
         if (!this.started) {
@@ -137,6 +94,9 @@ var PrinterRunner = function(){
 
     this.response_status = function (response) {
         if (response && response.print_queue.status == 'connected') {
+            if (this.event_callback) {
+                this.event_callback('Connected to ' + this.endpoint_url);
+            }
             this._can_print_label = true;
             if (this._backlog.length) {
                 for (var i = 0; i < this._backlog.length; i++) {
@@ -152,10 +112,16 @@ var PrinterRunner = function(){
 
     this.error_response_status = function (response) {
         console.log(response);
+        if (this.event_callback) {
+            this.event_callback('Error connecting to ' + this.endpoint_url);
+        }
         this.connection_errors_count += 1;
     }
 
     this.print = function (attachment) {
+        if (this.event_callback) {
+            this.event_callback('Queuing ' + attachment.name);
+        }
         if (this._can_print_label) {
             if (!attachment.data) {
                 this.download_and_print(attachment);
@@ -171,8 +137,6 @@ var PrinterRunner = function(){
     }
 
     this.print_message = function (message) {
-        //console.log('on_new_message');
-        //console.log(message);
         var self = this;
         if (message.attachment_ids.length && this.can_print_label()) {
             for (var i = 0; i < message.attachment_ids.length; i++) {
@@ -201,33 +165,16 @@ var PrinterRunner = function(){
     }
 
     this.print_response = function(response) {
-        console.log(response);
+        if (this.event_callback) {
+            this.event_callback('Print success.');
+        }
     }
 
     return this;
 };
 
-var label_printer_runner = new PrinterRunner();
-label_printer_runner.start();
-
-var TEST = {
-    'attachment_ids': [
-        {
-            mimetype: "application/octet-stream",
-            id: 5344,
-            name: "LabelFedex-787623177789.ZPLII",
-            filename: "LabelFedex-787623177789.ZPLII",
-            url: "/web/content/5344?download=true"
-        }
-    ]
-};
-
-//setTimeout(function(){label_printer_runner.print_message(TEST)}, 5000);
-
-
-
 return {
-    Scale: scale_runner,
-    LabelPrinter: label_printer_runner,
+    PrintQueueContainer: PrintQueueContainer,
+    PrinterRunner: PrinterRunner,
 };
 });

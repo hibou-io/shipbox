@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from base64 import b64encode
-from odoo import api, fields, models
+from odoo import api, models
 
 BARCODE_FORMAT = """
 ^XA
@@ -12,12 +12,6 @@ BARCODE_FORMAT = """
 ^FO140,40^BC^FD%s^FS
 ^XZ
 """
-
-
-class StockPicking(models.Model):
-    _inherit = 'stock.pack.operation'
-
-    shipping_weight = fields.Float('Shipping Weight', related='package_id.shipping_weight')
 
 
 class StockPicking(models.Model):
@@ -36,7 +30,7 @@ class StockPicking(models.Model):
                 'shipbox_print': {
                     'endpoint_url': self.env.context.get('endpoint_url', False),
                     'filename': 'initial_demand_barcodes.ZPL',
-                    'data': b64encode(data),
+                    'data': b64encode(data.encode()),
                 }
             }
         return True
@@ -54,7 +48,7 @@ class StockPicking(models.Model):
                 'shipbox_print': {
                     'endpoint_url': self.env.context.get('endpoint_url', False),
                     'filename': 'operations_barcodes.ZPL',
-                    'data': b64encode(data),
+                    'data': b64encode(data.encode()),
                 }
             }
         return True
