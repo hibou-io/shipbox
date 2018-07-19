@@ -8,3 +8,11 @@
     font-size: 85%;
     border-bottom: 1px solid #eee;
 }
+
+.o_field_scale {
+    position: relative;
+}
+.o_field_scale .btn {
+    position: absolute;
+    right: 120px;
+}
