@@ -53,7 +53,7 @@ class ScaleManager(object):
         Returns None if none are found.
 
         """
-        devices = self._usb.d
+        devices = self._usb.find(find_all=True)
 
         # Returns none if no devices are available.
         if not devices:
