@@ -83,10 +83,11 @@ class ScaleThread(Thread):
         return weight, weight_info, status
 
     def get_device(self):
+        self.lockedstart()
         if self.device:
             return self.device
 
-        return Scale()
+        return None
 
     def get_weight(self):
         self.lockedstart()
@@ -143,7 +144,7 @@ class ScaleThread(Thread):
                     time.sleep(0.2)
             else:
                 with self.scalelock:
-                    self.device = self.get_device()
+                    self.device = Scale()
                     if self.device:
                         self.set_status('connected')
                 if not self.device:

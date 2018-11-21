@@ -26,8 +26,7 @@ class ScaleManager(object):
             usb_lib = usb.core
 
         if not lookup:
-            import usb_ids
-            lookup = usb_ids.USB_IDS
+            from .usb_ids import USB_IDS as lookup
 
         self._lookup = lookup
         self._usb = usb_lib
@@ -48,7 +47,7 @@ class ScaleManager(object):
         Returns None if no devices are available.
         
         If no arguments are passed, it finds the
-        first device that has " Scale" in its model
+        first device that has "Scale" in its model
         name as returned by `get_model`.
         Returns None if none are found.
 
@@ -60,11 +59,11 @@ class ScaleManager(object):
             return None
 
         # If no arguments are passed, returns the first
-        # device with " Scale" in its model name.
+        # device with "Scale" in its model name.
         # Returns None if none are found.
         if not manufacturer and not model:
             for device in devices:
-                if " Scale" in self.get_model(device):
+                if "Scale" in self.get_model(device):
                     return device
             return None
 

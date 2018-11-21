@@ -3,8 +3,8 @@
 # vim: set fileencoding=utf-8 :
 import usb.util
 from collections import namedtuple
-from scale_manager import ScaleManager
-from reports import \
+from .scale_manager import ScaleManager
+from .reports import \
         ReportFactory, STATUSES, ZERO_WEIGHT, STABLE_WEIGHT, DATA_REPORT
 
 ScaleReading = namedtuple("ScaleReading", ["weight", "unit"])
