@@ -3,13 +3,12 @@
 import logging
 import time
 
-from pyusb_scale.scale import Scale
+from .pyusb_scale.scale import Scale
 from threading import Thread, Lock
 
 from openerp import http
 
 import openerp.addons.hw_proxy.controllers.main as hw_proxy
-import openerp.addons.hw_scale.controllers.main as hw_scale
 
 _logger = logging.getLogger(__name__)
 
@@ -83,7 +82,6 @@ class ScaleThread(Thread):
         return weight, weight_info, status
 
     def get_device(self):
-        self.lockedstart()
         if self.device:
             return self.device
 
@@ -156,32 +154,24 @@ scale_thread = ScaleThread()
 hw_proxy.drivers[DRIVER_NAME] = scale_thread
 
 
-class ScaleDriver(hw_scale.ScaleDriver):
+class ScaleDriver(hw_proxy.Proxy):
     @http.route('/hw_proxy/scale_read/', type='json', auth='none', cors='*')
     def scale_read(self):
-        if scale_thread.get_device():
-            return {'weight': scale_thread.get_weight(),
-                    'unit': 'kg',
-                    'info': scale_thread.get_weight_info()}
-        return super(ScaleDriver, self).scale_read()
+        return {'weight': scale_thread.get_weight(),
+                'unit': 'kg',
+                'info': scale_thread.get_weight_info()}
 
     @http.route('/hw_proxy/scale_zero/', type='json', auth='none', cors='*')
     def scale_zero(self):
-        if scale_thread.get_device():
-            scale_thread.set_zero()
-            return True
-        return super(ScaleDriver, self).scale_read()
+        scale_thread.set_zero()
+        return True
 
     @http.route('/hw_proxy/scale_tare/', type='json', auth='none', cors='*')
     def scale_tare(self):
-        if scale_thread.get_device():
-            scale_thread.set_tare()
-            return True
-        return super(ScaleDriver, self).scale_read()
+        scale_thread.set_tare()
+        return True
 
     @http.route('/hw_proxy/scale_clear_tare/', type='json', auth='none', cors='*')
     def scale_clear_tare(self):
-        if scale_thread.get_device():
-            scale_thread.clear_tare()
-            return True
-        return super(ScaleDriver, self).scale_read()
+        scale_thread.clear_tare()
+        return True
