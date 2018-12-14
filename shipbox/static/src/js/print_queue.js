@@ -86,7 +86,7 @@ var PrinterRunner = function(){
             setTimeout(this.start.bind(this), 500);
         } else if (this.endpoint_url) {
             var url = this.endpoint_url + '/hw_proxy/status_json';
-            ajax.jsonRpc(url)
+            ajax.jsonRpc(url, null, {}, {'shadow': true})
                 .done(this.response_status.bind(this))
                 .fail(this.error_response_status.bind(this))
         }
@@ -128,7 +128,7 @@ var PrinterRunner = function(){
                 return;
             }
             var url = this.endpoint_url + '/hw_proxy/print_queue';
-            ajax.jsonRpc(url, null, {'attachment': attachment})
+            ajax.jsonRpc(url, null, {'attachment': attachment}, {'shadow': true})
                 .done(this.print_response.bind(this))
                 .fail(this.error_response_status.bind(this))
         } else {
@@ -138,9 +138,9 @@ var PrinterRunner = function(){
 
     this.print_message = function (message) {
         var self = this;
-        if (message.attachment_ids.length && this.can_print_label()) {
-            for (var i = 0; i < message.attachment_ids.length; i++) {
-                var attachment = message.attachment_ids[i];
+        if (message._attachmentIDs.length && this.can_print_label()) {
+            for (var i = 0; i < message._attachmentIDs.length; i++) {
+                var attachment = message._attachmentIDs[i];
                 if (attachment.filename.indexOf('Label') >= 0) {
                     this.download_and_print(attachment);
                 }

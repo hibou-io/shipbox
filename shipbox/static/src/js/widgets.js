@@ -55,7 +55,7 @@ var FieldScale = basic_fields.InputField.extend({
 
         // Prepare and add the input
         this._prepareInput().appendTo(this.$el);
-        var $weight = $('<span>', {text: ' From Scale: ', class: 'btn'}).append(
+        var $weight = $('<span>', {text: ' From Scale: ', class: 'btn btn-primary'}).append(
             $('<span>', {class: 'shipbox_scale_reading_auto'})
         );
         var handle = function(e) {

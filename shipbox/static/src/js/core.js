@@ -92,7 +92,7 @@ var ShipboxCoreWidget = Widget.extend({
     scale_read_from_scale: function() {
         if (this.scale_connection_errors_count < 100) {
             var url = this.endpoint_url + '/hw_proxy/scale_read/';
-            ajax.jsonRpc(url)
+            ajax.jsonRpc(url, null, {}, {'shadow': true})
                 .done(this.scale_response_from_scale.bind(this))
                 .fail(this.error_from_scale.bind(this))
                 .always(this.setup_read_timer.bind(this));
@@ -105,19 +105,19 @@ var ShipboxCoreWidget = Widget.extend({
             this.scale_max = result.weight;
         }
         this.scale_reading = parseFloat(w);
-        this.scale_speed = 500;
+        this.scale_speed = 1000;
         $('.shipbox_scale_reading_auto').text(w);
     },
     error_from_scale: function(error) {
         var event = this.get_scale_event();
         this.scale_connection_errors_count += 1;
         this.scale_speed = 1000;
-        if (this.scale_connection_errors_count > 10) {
+        if (this.scale_connection_errors_count > 5) {
             event.msg = this.scale_connection_errors_count + ' Errors. Throttling...';
-            this.scale_speed = 2000;
-        } else if (this.scale_connection_errors_count > 20) {
+            this.scale_speed = 10000;
+        } else if (this.scale_connection_errors_count > 10) {
             event.msg = this.scale_connection_errors_count + ' Errors. Throttling more...';
-            this.scale_speed = 5000;
+            this.scale_speed = 30000;
         }
         if (event.msg) {
             this.add_event(event);
