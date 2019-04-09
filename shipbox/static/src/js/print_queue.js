@@ -5,7 +5,7 @@ var ajax = require('web.ajax');
 var ActionManager = require('web.ActionManager');
 
 ActionManager.include({
-    ir_actions_act_window_close: function (action, options) {
+    _executeCloseAction: function (action, options) {
         if (action.shipbox_print) {
             console.log(action.shipbox_print);
             console.log(PrintQueueContainer.getMainQueue());
