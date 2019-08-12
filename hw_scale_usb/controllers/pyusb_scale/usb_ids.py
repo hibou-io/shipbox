@@ -11837,6 +11837,7 @@ USB_IDS = {
         0x001a: "LabelWriter 400 Turbo",
         0x0020: "LabelWriter 450",
         0x8003: "Scale",
+        0x8009: "Scale Large",
     },
     0x0923: {
         "name": "IC Media Corp.",
