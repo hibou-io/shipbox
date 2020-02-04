@@ -108,14 +108,16 @@ var ShipboxCoreWidget = Widget.extend({
         this.scale_speed = 1000;
         $('.shipbox_scale_reading_auto').text(w);
     },
-    error_from_scale: function(error) {
+    error_from_scale: function(error, ev) {
+        ev.preventDefault();
+        ev.stopImmediatePropagation();
         var event = this.get_scale_event();
         this.scale_connection_errors_count += 1;
         this.scale_speed = 1000;
-        if (this.scale_connection_errors_count > 5) {
+        if (this.scale_connection_errors_count > 3) {
             event.msg = this.scale_connection_errors_count + ' Errors. Throttling...';
             this.scale_speed = 10000;
-        } else if (this.scale_connection_errors_count > 10) {
+        } else if (this.scale_connection_errors_count > 6) {
             event.msg = this.scale_connection_errors_count + ' Errors. Throttling more...';
             this.scale_speed = 30000;
         }

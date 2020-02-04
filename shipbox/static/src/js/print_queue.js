@@ -110,7 +110,9 @@ var PrinterRunner = function(){
         }
     }
 
-    this.error_response_status = function (response) {
+    this.error_response_status = function (response, ev) {
+        ev.preventDefault();
+        ev.stopImmediatePropagation();
         console.log(response);
         if (this.event_callback) {
             this.event_callback('Error connecting to ' + this.endpoint_url);
