@@ -154,7 +154,7 @@ scale_thread = ScaleThread()
 hw_proxy.drivers[DRIVER_NAME] = scale_thread
 
 
-class ScaleDriver(hw_proxy.Proxy):
+class ScaleDriver(http.Controller):
     @http.route('/hw_proxy/scale_read/', type='json', auth='none', cors='*')
     def scale_read(self):
         return {'weight': scale_thread.get_weight(),

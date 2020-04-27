@@ -16,6 +16,6 @@ This module allows the point of sale to connect to a scale using a USB scale,
 such as the Mettler Toledo PS60.
 
 """,
-    'depends': ['hw_proxy', 'hw_scale'],
-    'external_dependencies': {'python': ['pyusb']},
+    'depends': ['hw_proxy', 'hw_drivers'],
+    # 'external_dependencies': {'python': ['pyusb']},
 }
