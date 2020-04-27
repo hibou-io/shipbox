@@ -15,6 +15,10 @@ ActionManager.include({
                 PrintQueueContainer.getMainQueue().print(action.shipbox_print);
             }
         }
+        if (action.shipbox_serial_file) {
+            console.log(action.shipbox_serial_file);
+            SerialFileUpload.send_file(action.shipbox_serial_file);
+        }
         return this._super(action, options);
     }
 });
@@ -29,6 +33,15 @@ var blobToBase64 = function(blob, callback) {
     };
     reader.readAsDataURL(blob);
 };
+
+var SerialFileUpload = {
+    send_file: function (payload) {
+        var url = payload.endpoint_url + '/hw_proxy/serial_file';
+        ajax.jsonRpc(url, null, payload, {'shadow': true})
+            .done(function(e){console.log('send_file done'); console.log(e);})
+            .fail(function(e){console.log('send_file fail'); console.log(e);})
+    }
+}
 
 var PrintQueueContainer = {
     queues: {},
