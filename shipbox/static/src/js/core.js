@@ -32,6 +32,7 @@ var ShipboxCoreWidget = Widget.extend({
             console.log(result);
             self.endpoint_url = result.url;
             self.endpoint_name = result.name;
+            self.weight_unit = result.weight_unit;
             self._scaleStart();
             self._printStart();
         });
@@ -82,7 +83,7 @@ var ShipboxCoreWidget = Widget.extend({
         this.scale_speed = 1000;
         this.scale_max = 0.0;
         if (this.endpoint_url) {
-            event.msg = 'Start';
+            event.msg = 'Start in ' + this.weight_unit;
             this.scale_read_from_scale();
         } else {
             event.msg = 'No Shipbox Endpoint';
@@ -100,6 +101,10 @@ var ShipboxCoreWidget = Widget.extend({
     },
     scale_response_from_scale: function(result) {
         var w = result.weight.toFixed(3);
+        // w is in kg
+        if (this.weight_unit == 'lbs') {
+            w = (result.weight * 2.20462).toFixed(3);
+        }
         if (result.weight > this.scale_max) {
             this.add_event(this.get_scale_event('New Max Weight: ' + w));
             this.scale_max = result.weight;
