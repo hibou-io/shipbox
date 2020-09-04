@@ -94,9 +94,8 @@ var ShipboxCoreWidget = Widget.extend({
         if (this.scale_connection_errors_count < 100) {
             var url = this.endpoint_url + '/hw_proxy/scale_read/';
             ajax.jsonRpc(url, null, {}, {'shadow': true})
-                .done(this.scale_response_from_scale.bind(this))
-                .fail(this.error_from_scale.bind(this))
-                .always(this.setup_read_timer.bind(this));
+                .then(this.scale_response_from_scale.bind(this),
+                      this.error_from_scale.bind(this));
         }
     },
     scale_response_from_scale: function(result) {
@@ -112,6 +111,8 @@ var ShipboxCoreWidget = Widget.extend({
         this.scale_reading = parseFloat(w);
         this.scale_speed = 1000;
         $('.shipbox_scale_reading_auto').text(w);
+        // always
+        this.setup_read_timer();
     },
     error_from_scale: function(error, ev) {
         ev.preventDefault();
@@ -129,6 +130,8 @@ var ShipboxCoreWidget = Widget.extend({
         if (event.msg) {
             this.add_event(event);
         }
+        // always
+        this.setup_read_timer();
     },
     setup_read_timer: function() {
         this.scale_timer = setTimeout(this.scale_read_from_scale.bind(this), this.scale_speed);

@@ -1,9 +1,9 @@
-# © 2018 Hibou Corp.
+# © 2020 Hibou Corp.
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 {
     'name': 'ShipBox',
-    'version': '12.0.1.0.0',
+    'version': '13.0.1.0.0',
     'category': 'Tools',
     'depends': [
         'stock',
@@ -19,7 +19,7 @@
         'views/stock_views.xml',
     ],
     'qweb': [
-    'static/src/xml/*.xml',
+        'static/src/xml/*.xml',
     ],
     'installable': True,
     'application': False,

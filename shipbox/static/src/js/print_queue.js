@@ -38,8 +38,8 @@ var SerialFileUpload = {
     send_file: function (payload) {
         var url = payload.endpoint_url + '/hw_proxy/serial_file';
         ajax.jsonRpc(url, null, payload, {'shadow': true})
-            .done(function(e){console.log('send_file done'); console.log(e);})
-            .fail(function(e){console.log('send_file fail'); console.log(e);})
+            .then(function(e){console.log('send_file done'); console.log(e);},
+                  function(e){console.log('send_file fail'); console.log(e);})
     }
 }
 
@@ -100,8 +100,8 @@ var PrinterRunner = function(){
         } else if (this.endpoint_url) {
             var url = this.endpoint_url + '/hw_proxy/status_json';
             ajax.jsonRpc(url, null, {}, {'shadow': true})
-                .done(this.response_status.bind(this))
-                .fail(this.error_response_status.bind(this))
+                .then(this.response_status.bind(this),
+                      this.error_response_status.bind(this))
         }
     }
 
@@ -144,8 +144,8 @@ var PrinterRunner = function(){
             }
             var url = this.endpoint_url + '/hw_proxy/print_queue';
             ajax.jsonRpc(url, null, {'attachment': attachment}, {'shadow': true})
-                .done(this.print_response.bind(this))
-                .fail(this.error_response_status.bind(this))
+                .then(this.print_response.bind(this),
+                      this.error_response_status.bind(this))
         } else {
             this._backlog.push(attachment);
         }

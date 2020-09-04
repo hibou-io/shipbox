@@ -15,7 +15,6 @@ BARCODE_FORMAT = """
 class StockPicking(models.Model):
     _inherit = 'stock.picking'
 
-    @api.multi
     def action_print_initial_demand_barcodes(self):
         data = ''
         for picking in self:
@@ -33,7 +32,6 @@ class StockPicking(models.Model):
             }
         return True
 
-    @api.multi
     def action_print_operations_barcodes(self):
         data = ''
         for picking in self:
